@@ -88,6 +88,12 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+//IMPLEMENTACAO TESTE
+  //adding time variables
+  p->ctime = ticks;
+  p->retime = 0;
+  p->rutime = 0;
+  p->stime = 0;
 
   release(&ptable.lock);
 
@@ -130,6 +136,7 @@ userinit(void)
     panic("userinit: out of memory?");
   inituvm(p->pgdir, _binary_initcode_start, (int)_binary_initcode_size);
   p->sz = PGSIZE;
+  p->ctime= ticks;
   memset(p->tf, 0, sizeof(*p->tf));
   p->tf->cs = (SEG_UCODE << 3) | DPL_USER;
   p->tf->ds = (SEG_UDATA << 3) | DPL_USER;
@@ -294,6 +301,8 @@ wait(void)
         p->parent = 0;
         p->name[0] = 0;
         p->killed = 0;
+        //IMPLEMENTACAO TESTE
+        p->ctime = 0;
         p->state = UNUSED;
         release(&ptable.lock);
         return pid;
@@ -531,4 +540,69 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+//IMPLEMENTACAO TESTE
+int wait2(int *retime, int *rutime, int *stime) {
+  struct proc *p;
+  //int havekids;
+  int pid;
+  acquire(&ptable.lock);
+  for(;;){
+    // Scan through table looking for zombie children.
+    //havekids = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->parent != myproc())
+        continue;
+      //havekids = 1;
+      if(p->state == ZOMBIE){
+        // Found one.
+        *retime = p->retime;
+        *rutime = p->rutime;
+        *stime = p->stime;
+        pid = p->pid;
+        kfree(p->kstack);
+        p->kstack = 0;
+        freevm(p->pgdir);
+        p->state = UNUSED;
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->ctime = 0;
+        p->retime = 0;
+        p->rutime = 0;
+        p->stime = 0;
+        //p->priority = 0;
+        release(&ptable.lock);
+        return pid;
+      }
+    }
+  }
+}
+
+
+//IMPLEMENTACAO TESTE
+/*
+  This method will run every clock tick and update the statistic fields for each proc
+*/
+void updatestatistics() {
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    switch(p->state) {
+      case SLEEPING:
+        p->stime++;
+        break;
+      case RUNNABLE:
+        p->retime++;
+        break;
+      case RUNNING:
+        p->rutime++;
+        break;
+      default:
+        ;
+    }
+  }
+  release(&ptable.lock);
 }

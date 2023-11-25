@@ -26,6 +26,23 @@ sys_wait(void)
   return wait();
 }
 
+//IMPLEMENTACAO TESTER
+/*
+  this is the actual function being called from syscall.c
+  @returns - pidof the terminated child process ‐ if successful
+­             -1, upon failure
+*/
+int sys_wait2(void) {
+  int *retime, *rutime, *stime;
+  if (argptr(0, (void*)&retime, sizeof(retime)) < 0)
+    return -1;
+  if (argptr(1, (void*)&rutime, sizeof(retime)) < 0)
+    return -1;
+  if (argptr(2, (void*)&stime, sizeof(stime)) < 0)
+    return -1;
+  return wait2(retime, rutime, stime);
+}
+
 int
 sys_kill(void)
 {

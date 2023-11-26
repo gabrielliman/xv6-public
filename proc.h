@@ -49,6 +49,8 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  //IMPLEMENTACAO MARCO
+  int priority;                    // Prioridade do processo
   //IMPLEMENTACAO TESTE
   uint ctime; // Tempo quando o processo foi criado
   int stime; //Tempo SLEEPING

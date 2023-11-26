@@ -12,6 +12,86 @@ struct {
   struct proc proc[NPROC];
 } ptable;
 
+//IMPLEMENTACAO MARCO
+// Implementacao de fila de prioridade. Considerei que todos
+// os processos da fila estarao com status de RUNNABLE.
+// A implementacao do scheduler nao funciona desobedecida
+// essa premissa.
+// Alterar essa implementacao nao é complicado, podendo ser usado
+// tres vetores estaticamente alocados como filas. Nesse caso, a
+// cada escalonamento, deve-se retirar o processo da fila com custo
+// O(n).
+struct queue{
+  struct proc *proc[NPROC];
+  int front;
+  int rear;
+  int (*enqueue)(struct proc *p, int *front, int *rear, struct proc **proc);
+  int (*dequeue)( int *front, int *rear, struct proc **proc);
+};
+
+// Adiciona processos a fila.
+int
+enqueue(struct proc *p, int *front, int *rear, struct proc **proc)
+{
+  if (*front == -1) // Queue is empty.
+    *front = 0;
+  else if((*rear + 1) % NPROC == *front) // Queue is full.
+    return -1; 
+  *rear = (*rear + 1) % NPROC;
+  proc[(*rear)] = p;
+  return 0;
+}
+
+// Remove processos da fila.
+int
+dequeue(int *front, int *rear, struct proc **proc)
+{
+  if(*front == -1) // Queue is empty.
+    return -1;
+  if(*front == *rear){ // There is only one element in the queue.
+    *front = -1;
+    *rear = -1;
+  }
+  else
+    *front = (*front + 1) % NPROC;
+  return 0;
+}
+
+// Instanciacao da fila de prioridade.
+struct queue pqueue[MAXPRIO];
+
+// Inicializa a fila de prioridade. Chamada em main.c.
+void 
+qinit(void){
+  for(int i = 0; i < MAXPRIO; i++)
+  {
+    pqueue[i].front = -1;
+    pqueue[i].rear = -1;
+    pqueue[i].enqueue = enqueue;
+    pqueue[i].dequeue = dequeue;
+  }
+}
+
+// Interface para adicionar processos na fila. Processos sao adicionados
+// ao fim da fila.
+void
+push(struct proc *p){
+  int prio = p->priority - IDX;
+  if(pqueue[prio].enqueue(p, &pqueue[prio].front, &pqueue[prio].rear, pqueue[prio].proc) == -1)
+    cprintf("Error while pushing to queue %d\n", prio);
+}
+
+// Interface para remover processos da fila. Um processo so pode
+// ser removido se ele for o primeiro da fila.
+void 
+pop(struct proc *p){
+  int prio = p->priority - IDX;
+  if(p != pqueue[prio].proc[pqueue[prio].front])
+    cprintf("Error: process is not first in the queue\n");
+  if(pqueue[prio].dequeue(&pqueue[prio].front, &pqueue[prio].rear, pqueue[prio].proc) == -1)
+    cprintf("Error while poping from queue %d\n", prio);
+}
+
 static struct proc *initproc;
 
 int nextpid = 1;
@@ -155,6 +235,9 @@ userinit(void)
   // because the assignment might not be atomic.
   acquire(&ptable.lock);
 
+  //IMPLEMENTACAO MARCO
+  p->priority = 2; // Define prioridade inicial do processo.
+  push(p); // Adiciona processo a fila.
   p->state = RUNNABLE;
 
   release(&ptable.lock);
@@ -221,6 +304,9 @@ fork(void)
 
   acquire(&ptable.lock);
 
+  //IMPLEMENTACAO MARCO 
+  np->priority = 2; // Define prioridade inicial do processo.
+  push(np); // Adiciona processo a fila.
   np->state = RUNNABLE;
 
   release(&ptable.lock);
@@ -341,9 +427,15 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
+    //IMPLEMENTACAO MARCO
+    for(int q = MAXPRIO - IDX; q > 0; q--){
+      p = pqueue[q].proc[pqueue[q].front];
+      // Checa se ha processo na fila. Caso haja, checa se esse processo
+      // tem status RUNNABLE (sempre deve ser verdadeiro pela premissa).
+      while(pqueue[q].front != -1 && p->state == RUNNABLE){
+        // Remove process from ready queue and start timer.
+        pop(p);
+        roundtimer = 0;
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -358,10 +450,13 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
+      //IMPLEMENTACAO MARCO
+      p = pqueue[q].proc[pqueue[q].front];
     }
     release(&ptable.lock);
 
   }
+}
 }
 
 // Enter scheduler.  Must hold only ptable.lock
@@ -496,7 +591,11 @@ kill(int pid)
       p->killed = 1;
       // Wake process from sleep if necessary.
       if(p->state == SLEEPING)
+      //IMPLEMENTACAO MARCO
+      {
+        push(p); // Adiciona processo a fila.
         p->state = RUNNABLE;
+      }
       release(&ptable.lock);
       return 0;
     }
@@ -620,4 +719,39 @@ void update_time() {
     }
   }
   release(&ptable.lock);
+}
+
+//IMPLEMENTACAO MARCO
+// Atualiza contadores de tempo para todos os processos em cada tick.
+void 
+procclock(void){
+  struct proc *p;
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state == RUNNABLE)
+      p->retime++;
+    else if(p->state == RUNNING)
+      p->rutime++;
+    else if(p->state == SLEEPING)
+      p->stime++;
+  }
+}
+
+// Realiza politica de envelhecimento.
+void
+growprio(void){
+  struct proc *p;
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->priority == 1 && (ticks - p->ctime) % TO2 == 0){
+      pop(p);
+      p->priority = 2;
+      push(p);
+    }
+    else if(p->priority == 2 && (ticks - p->ctime) % TO3 == 0){
+      pop(p);
+      p->priority = 3;
+      push(p);
+    }
+  }
 }

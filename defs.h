@@ -122,6 +122,12 @@ void            wakeup(void*);
 void            yield(void);
 //IMPLEMENTACAO TESTE
 int             wait2(int*, int*, int*);
+//IMPLEMENTACAO MARCO
+void            procclock(void);
+void            growprio(void);
+void            qinit(void);
+int             enqueue(struct proc*, int*, int*, struct proc**);
+int             dequeue(int*, int*, struct proc**);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
@@ -164,6 +170,8 @@ void            timerinit(void);
 // trap.c
 void            idtinit(void);
 extern uint     ticks;
+//IMPLEMENTACAO MARCO
+extern uint     roundtimer;
 void            tvinit(void);
 extern struct spinlock tickslock;
 

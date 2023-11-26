@@ -26,7 +26,7 @@ sys_wait(void)
   return wait();
 }
 
-//IMPLEMENTACAO TESTER
+//IMPLEMENTACAO TESTE
 //  function called by syscall.c
 int sys_wait2(void) {
   int *retime, *rutime, *stime;
@@ -103,4 +103,17 @@ sys_uptime(void)
   xticks = ticks;
   release(&tickslock);
   return xticks;
+}
+
+//IMPLEMENTACAO MARCO
+// implementacao da chamada de sistema de envelhecimento
+int
+sys_change_prio(void)
+{
+  int prio; // nova prioridade do processo
+
+  if(argint(0, &prio) < 0)
+    return -1;
+  myproc()->priority = prio;
+  return 0;
 }

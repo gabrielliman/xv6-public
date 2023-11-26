@@ -105,6 +105,9 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 //IMPLEMENTACAO TESTE
 extern int sys_wait2(void);
+//IMPLEMENTACAO MARCO
+// implementacao de envelhecimento
+extern int sys_change_prio(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -130,6 +133,9 @@ static int (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 //IMPLEMENTACAO TESTE
 [SYS_wait2]    sys_wait2,
+//IMPLEMENTACAO MARCO
+// implementacao de envelhecimento
+[SYS_change_prio]   sys_change_prio,
 };
 
 void

@@ -13,6 +13,9 @@ struct gatedesc idt[256];
 extern uint vectors[];  // in vectors.S: array of 256 entry pointers
 struct spinlock tickslock;
 uint ticks;
+//IMPLEMENTACAO MARCO
+uint roundtimer; // Contador de ticks do processo atual. Necessario para
+                 // implementar o Round Robin.
 
 void
 tvinit(void)
@@ -51,6 +54,10 @@ trap(struct trapframe *tf)
     if(cpuid() == 0){
       acquire(&tickslock);
       ticks++;
+      //IMPLEMENTACAO MARCO
+      roundtimer++; // Atualiza o contador do processo atual.
+      procclock(); // Atualiza contador de tempo dos processos.
+      growprio(); // Realiza politica de envelhecimento.
       //IMPLEMENTACAO TESTE
       update_time(); //will update proc statistic every clock tick
       wakeup(&ticks);

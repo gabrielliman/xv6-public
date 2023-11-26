@@ -20,5 +20,12 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
+//IMPLEMENTACAO MARCO
+// Define constante para a chamada de sistema que implementa envelhecimento 
+#define SYS_change_prio  22 
+// Promove um processo da fila 2 para fila 3 se tempo de espera maior que 100 ticks
+#define TO3        100
+// Promove um processo da fila 2 para fila 3 se tempo de espera maior que 100 ticks
+#define TO2        200
 //IMPLEMENTACAO TESTE
 #define SYS_wait2  23

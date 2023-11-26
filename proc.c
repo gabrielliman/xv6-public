@@ -35,7 +35,7 @@ enqueue(struct proc *p, int *front, int *rear, struct proc **proc)
 {
   if (*front == -1) // Queue is empty.
     *front = 0;
-  else if((*rear + 1) % NPROC == front) // Queue is full.
+  else if((*rear + 1) % NPROC == *front) // Queue is full.
     return -1; 
   *rear = (*rear + 1) % NPROC;
   proc[(*rear)] = p;
@@ -77,7 +77,7 @@ qinit(void){
 void
 push(struct proc *p){
   int prio = p->priority - IDX;
-  if(pqueue[prio].enqueue(p, pqueue[prio].front, pqueue[prio].rear, pqueue[prio].proc) == -1)
+  if(pqueue[prio].enqueue(p, &pqueue[prio].front, &pqueue[prio].rear, pqueue[prio].proc) == -1)
     cprintf("Error while pushing to queue %d\n", prio);
 }
 
@@ -88,7 +88,7 @@ pop(struct proc *p){
   int prio = p->priority - IDX;
   if(p != pqueue[prio].proc[pqueue[prio].front])
     cprintf("Error: process is not first in the queue\n");
-  if(pqueue[prio].dequeue(pqueue[prio].front, pqueue[prio].rear, pqueue[prio].proc) == -1)
+  if(pqueue[prio].dequeue(&pqueue[prio].front, &pqueue[prio].rear, pqueue[prio].proc) == -1)
     cprintf("Error while poping from queue %d\n", prio);
 }
 

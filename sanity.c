@@ -3,8 +3,6 @@
 #include "user.h"
 int main(int argc, char *argv[])
 {
-
-
     if (argc != 2){
         printf(1, "Sanity expects one parameter [n]\n");
         exit();
@@ -13,7 +11,7 @@ int main(int argc, char *argv[])
     int n=atoi(argv[1]);
     //loop creating 3n processes
     int pid;
-    int proc_type,a,b;
+    int proc_type;
     //Running processes
     for (int i=0; i<3*n;i++)
     {
@@ -50,8 +48,8 @@ int main(int argc, char *argv[])
 	int rutime,cpu_rutime=0,s_rutime=0, io_rutime=0;
 	int stime, cpu_stime=0, s_stime=0, io_stime=0;
     for (int i=0; i<3*n;i++){
-        pid =wait2(&retime, &rutime, &stime);
-        proc_type=getpid()%3;
+        pid=wait2(&retime, &rutime, &stime);
+        proc_type=pid%3;
         switch (proc_type)
         {
             case 0: //CPU-BOUND

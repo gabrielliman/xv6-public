@@ -25,6 +25,7 @@ int sleep(int);
 int uptime(void);
 //IMPLEMENTACAO TESTE
 int wait2(int*, int*, int*);
+void yield(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

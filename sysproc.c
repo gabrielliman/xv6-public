@@ -104,3 +104,9 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+//IMPLEMENTACAO SANITY
+int sys_yield(void){
+  yield();
+  return 0;
+}

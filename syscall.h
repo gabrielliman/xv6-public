@@ -22,3 +22,4 @@
 #define SYS_close  21
 //IMPLEMENTACAO TESTE
 #define SYS_wait2  23
+#define SYS_yield  24

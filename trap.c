@@ -52,7 +52,7 @@ trap(struct trapframe *tf)
       acquire(&tickslock);
       ticks++;
       //IMPLEMENTACAO TESTE
-      updatestatistics(); //will update proc statistic every clock tick
+      update_time(); //will update proc statistic every clock tick
       wakeup(&ticks);
       release(&tickslock);
     }

@@ -57,7 +57,10 @@ struct proc {
 };
 
 //IMPLEMENTACAO TESTE
-void updatestatistics();
+void update_time();
+
+
+
 // Process memory is laid out contiguously, low addresses first:
 //   text
 //   original data and bss

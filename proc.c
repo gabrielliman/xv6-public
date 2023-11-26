@@ -545,39 +545,54 @@ procdump(void)
 //IMPLEMENTACAO TESTE
 int wait2(int *retime, int *rutime, int *stime) {
   struct proc *p;
-  //int havekids;
-  int pid;
+  int havekids,pid;
+  struct proc *curproc = myproc();
+
   acquire(&ptable.lock);
+  //infinite loop
   for(;;){
     // Scan through table looking for zombie children.
-    //havekids = 0;
+    havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->parent != myproc())
+      //if it isnt a child of our process it will continue
+      if(p->parent != curproc)
         continue;
-      //havekids = 1;
+      havekids = 1;
+
+      //if one of the childs is in zombie state
       if(p->state == ZOMBIE){
-        // Found one.
+        //Found one, updates times
         *retime = p->retime;
         *rutime = p->rutime;
         *stime = p->stime;
         pid = p->pid;
+        //frees space used by zombie process
         kfree(p->kstack);
         p->kstack = 0;
         freevm(p->pgdir);
+        p->ctime = 0;
+        p->retime = 0;
+        p->rutime = 0;
+        p->stime = 0;
         p->state = UNUSED;
         p->pid = 0;
         p->parent = 0;
         p->name[0] = 0;
         p->killed = 0;
-        p->ctime = 0;
-        p->retime = 0;
-        p->rutime = 0;
-        p->stime = 0;
-        //p->priority = 0;
+        //release lock
         release(&ptable.lock);
         return pid;
       }
     }
+
+    // No point waiting if we don't have any children.
+    if(!havekids || curproc->killed){
+      release(&ptable.lock);
+      return -1;
+    }
+
+    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+    sleep(curproc, &ptable.lock);  //DOC: wait-sleep
   }
 }
 
@@ -586,19 +601,19 @@ int wait2(int *retime, int *rutime, int *stime) {
 /*
   This method will run every clock tick and update the statistic fields for each proc
 */
-void updatestatistics() {
+void update_time() {
   struct proc *p;
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     switch(p->state) {
+      case RUNNING:
+        p->rutime++;
+        break;
       case SLEEPING:
         p->stime++;
         break;
       case RUNNABLE:
         p->retime++;
-        break;
-      case RUNNING:
-        p->rutime++;
         break;
       default:
         ;

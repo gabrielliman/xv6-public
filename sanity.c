@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
                 switch (proc_type)
                 {
                 case 0: //CPU-BOUND
-                    for (int a = 0; a < 100; a++)
+                    for (int a = 0; a < 10000; a++)
                         //for (int b = 0; b<1000000; b++){}						
                         {for (double z = 0; z < 10000.0; z+= 0.1)
 				         {double x =  x + 3.14 * 89.64;}} 
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
                 break;
             case 1: //S-CPU
-                printf(1, "CPU-S Bound, pid: %d, ready time: %d, running time: %d, sleeping time: %d\n", pid, retime, rutime, stime);
+                printf(1, "S-Bound, pid: %d, ready time: %d, running time: %d, sleeping time: %d\n", pid, retime, rutime, stime);
                 s_retime+=retime;
                 s_rutime+=rutime;
                 s_stime+=stime;
@@ -80,8 +80,8 @@ int main(int argc, char *argv[])
         }
     }
     //Average Info
-	printf(1, "\n\nCPU bound:\nAverage ready time: %d\nAverage running time: %d\nAverage sleeping time: %d\nAverage turnaround time: %d\n\n\n", cpu_retime/n, cpu_rutime/n, cpu_stime/n, (cpu_retime+cpu_rutime+cpu_stime)/n);
-	printf(1, "CPU-S bound:\nAverage ready time: %d\nAverage running time: %d\nAverage sleeping time: %d\nAverage turnaround time: %d\n\n\n", s_retime/n, s_rutime/n, s_stime/n,(s_retime+s_rutime+s_stime)/n);
-	printf(1, "I/O bound:\nAverage ready time: %d\nAverage running time: %d\nAverage sleeping time: %d\nAverage turnaround time: %d\n\n\n", io_retime/n, io_rutime/n, io_stime/n,(io_retime+io_rutime+io_stime)/n);
+	printf(1, "\n\nCPU-Bound:\nAverage ready time: %d\nAverage running time: %d\nAverage sleeping time: %d\nAverage turnaround time: %d\n\n\n", cpu_retime/n, cpu_rutime/n, cpu_stime/n, (cpu_retime+cpu_rutime+cpu_stime)/n);
+	printf(1, "S-Bound:\nAverage ready time: %d\nAverage running time: %d\nAverage sleeping time: %d\nAverage turnaround time: %d\n\n\n", s_retime/n, s_rutime/n, s_stime/n,(s_retime+s_rutime+s_stime)/n);
+	printf(1, "I/O-Bound:\nAverage ready time: %d\nAverage running time: %d\nAverage sleeping time: %d\nAverage turnaround time: %d\n\n\n", io_retime/n, io_rutime/n, io_stime/n,(io_retime+io_rutime+io_stime)/n);
 	exit();
 }

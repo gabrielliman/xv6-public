@@ -97,6 +97,7 @@ found:
   p->retime = 0;
   p->rutime = 0;
   p->stime = 0;
+  p->lastruntime=0;
 
   release(&ptable.lock);
 
@@ -644,12 +645,15 @@ void update_time()
     switch (p->state)
     {
     case RUNNING:
+      p->lastruntime=0;
       p->rutime++;
       break;
     case SLEEPING:
+      p->lastruntime=0;
       p->stime++;
       break;
     case RUNNABLE:
+      p->lastruntime++;
       p->retime++;
       break;
     default:;
@@ -664,8 +668,8 @@ void growprio(void)
   struct proc *p;
 
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-    if (p->priority == 1 && (ticks - p->ctime) % TO2 == 0)
+    if (p->priority == 1 && p->lastruntime % TO2 == 0)
       p->priority = 2;
-    else if (p->priority == 2 && (ticks - p->ctime) % TO3 == 0)
+    else if (p->priority == 2 && p->lastruntime % TO3 == 0)
       p->priority = 3;
 }

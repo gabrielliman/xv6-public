@@ -26,6 +26,9 @@ int uptime(void);
 //IMPLEMENTACAO TESTE
 int wait2(int*, int*, int*);
 void yield(void);
+//IMPLEMENTACAO TAREFA2
+int change_prio(int);
+int myprio(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

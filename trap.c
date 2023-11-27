@@ -57,6 +57,7 @@ trap(struct trapframe *tf)
       roundtimer++;
       //IMPLEMENTACAO TESTE
       update_time(); //will update proc statistic every clock tick
+      growprio(); // Realiza politica de envelhecimento.
       wakeup(&ticks);
       release(&tickslock);
     }

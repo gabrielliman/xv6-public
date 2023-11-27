@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
     int pid;
     int proc_type;
     //Running processes
+
     for (int i=0; i<3*n;i++)
     {
         pid=fork();
@@ -80,5 +81,4 @@ int main(int argc, char *argv[])
 	printf(1, "CPU-S bound:\nAverage ready time: %d\nAverage running time: %d\nAverage sleeping time: %d\nAverage turnaround time: %d\n\n\n", s_retime/n, s_rutime/n, s_stime/n,(s_retime+s_rutime+s_stime)/n);
 	printf(1, "I/O bound:\nAverage ready time: %d\nAverage running time: %d\nAverage sleeping time: %d\nAverage turnaround time: %d\n\n\n", io_retime/n, io_rutime/n, io_stime/n,(io_retime+io_rutime+io_stime)/n);
 	exit();
-
 }

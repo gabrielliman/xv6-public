@@ -110,3 +110,18 @@ int sys_yield(void){
   yield();
   return 0;
 }
+
+//IMPĹEMENTACAO TAREFA2
+int sys_change_prio(void){
+  int prio; // nova prioridade do processo
+
+  if(argint(0, &prio) < 0)
+    return -1;
+  myproc()->priority = prio;
+  return 0;
+}
+
+int sys_myprio(void){
+  int prio=myproc()->priority;
+  return prio;
+}

@@ -122,6 +122,9 @@ void            wakeup(void*);
 void            yield(void);
 //IMPLEMENTACAO TESTE
 int             wait2(int*, int*, int*);
+void            update_time(void);
+void            growprio(void);
+
 
 // swtch.S
 void            swtch(struct context**, struct context*);

@@ -23,16 +23,18 @@ int main(int argc, char *argv[])
                 switch (proc_type)
                 {
                 case 0: //CPU-BOUND
-                    for (int a = 0; a < 10000; a++)
-                        //for (int b = 0; b<1000000; b++){}						
-                        {for (double z = 0; z < 10000.0; z+= 0.1)
-				         {double x =  x + 3.14 * 89.64;}} 
+                    for (int a = 0; a < 100; a++)
+                        for (int b = 0; b<1000000; b++){}						
+                        // {for (double z = 0; z < 10000.0; z+= 0.1)
+				        //  {double x =  x + 3.14 * 89.64;}} 
 
                     
                     break;
                 case 1: //S-CPU
                     for (int a = 0; a < 20; a++){
-                            for (int b = 0; b<1000000; b++){}
+                        for (int b = 0; b<1000000; b++){}
+                        //     {for (double z = 0; z < 10000.0; z+= 0.1)
+				        //  {double x =  x + 3.14 * 89.64;}}
                             yield();
                         }
                     break;  

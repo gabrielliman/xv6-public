@@ -362,7 +362,7 @@ void scheduler(void)
       if (p->state != RUNNABLE)
         continue;
 
-      // Implement priority round-robin.
+      //Implement priority round-robin.
       struct proc *maxp = p;
       struct proc *np;
       for (np = ptable.proc; np < &ptable.proc[NPROC]; np++)
@@ -373,7 +373,7 @@ void scheduler(void)
           maxp = np;
       }
       p = maxp;
-      roundtimer = 0;
+      p->timer=0;
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
@@ -646,15 +646,19 @@ void update_time()
     {
     case RUNNING:
       p->lastruntime=0;
+      p->timer++;
       p->rutime++;
       break;
     case SLEEPING:
       p->lastruntime=0;
+      p->timer=0;
       p->stime++;
       break;
     case RUNNABLE:
       p->lastruntime++;
+      p->timer=0;
       p->retime++;
+      
       break;
     default:;
     }

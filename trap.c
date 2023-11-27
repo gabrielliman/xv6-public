@@ -13,8 +13,6 @@ struct gatedesc idt[256];
 extern uint vectors[];  // in vectors.S: array of 256 entry pointers
 struct spinlock tickslock;
 uint ticks;
-//IMPĹEMENTACAO TAREFA1
-uint roundtimer;
 
 void
 tvinit(void)
@@ -53,8 +51,6 @@ trap(struct trapframe *tf)
     if(cpuid() == 0){
       acquire(&tickslock);
       ticks++;
-      //IMPĹEMENTACAO TAREFA1
-      roundtimer++;
       //IMPLEMENTACAO TESTE
       update_time(); //will update proc statistic every clock tick
       growprio(); // Realiza politica de envelhecimento.
@@ -111,7 +107,7 @@ trap(struct trapframe *tf)
   // If interrupts were on while locks held, would need to check nlock.
   if(myproc() && myproc()->state == RUNNING &&
   //IMPĹEMENTACAO TAREFA1
-     tf->trapno == T_IRQ0+IRQ_TIMER && roundtimer==INTERV)
+     tf->trapno == T_IRQ0+IRQ_TIMER && myproc()->timer==INTERV)
     yield();
 
   // Check if the process has been killed since we yielded

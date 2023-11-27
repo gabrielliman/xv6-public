@@ -56,7 +56,8 @@ struct proc {
   int stime; //Tempo SLEEPING
   int retime; //Tempo READY(RUNNABLE) time
   int rutime; // Tempo executando (RUNNING)
-  int lastruntime; 
+  int lastruntime; //time since last execution
+  int timer; //time running in this iteration
 };
 
 //IMPLEMENTACAO TESTE
